@@ -1,13 +1,6 @@
-#ifndef SHADERS_HPP
-#define SHADERS_HPP
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#pragma once
 
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 
 class Shader {
 public:
@@ -20,5 +13,3 @@ public:
     void setInt(const std::string& name, int value) const;
     void setFloat(const std::string& name, float value) const;
 };
-
-#endif

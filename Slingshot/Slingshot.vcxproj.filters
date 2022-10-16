@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Libraries">
-      <UniqueIdentifier>{890a9f3b-f9ec-4d0e-8e35-42062d4c6ebf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{2fa31c7d-2362-497f-b72c-631a57cb666a}</UniqueIdentifier>
     </Filter>
@@ -23,9 +20,6 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glad.c">
-      <Filter>Libraries</Filter>
     </ClCompile>
     <ClCompile Include="src\window.cpp">
       <Filter>Source Files</Filter>

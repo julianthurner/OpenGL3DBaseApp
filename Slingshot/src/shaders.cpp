@@ -1,5 +1,12 @@
 // Disclaimer: I got most of this code from https://learnopengl.com which is a fantastic resource for starting out
 
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "shaders.hpp"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {

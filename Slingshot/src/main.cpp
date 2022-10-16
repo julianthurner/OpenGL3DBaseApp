@@ -1,13 +1,9 @@
 #include <iostream>
-#include <array>
+
 #include "window.hpp"
 #include "input.hpp"
 #include "testrender.hpp"
 #include "shaders.hpp"
-
-#include <string>
-#include <fstream>
-#include <sstream>
 
 int main(int argc, char** argv) {
 	int resCode;
@@ -68,4 +64,5 @@ int main(int argc, char** argv) {
 * Remove dummyShaders
 * Cleanup main function
 * Define key bindings
+* Cleanup includes
 */

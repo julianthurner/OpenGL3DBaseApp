@@ -1,5 +1,4 @@
-#ifndef TESTRENDER_HPP
-#define TESTRENDER_HPP
+#pragma once
 
 #include <array>
 
@@ -22,5 +21,3 @@ extern unsigned int testfunction(Triangle* triangle);
 extern unsigned int testfunction2(Rectangle* rectangle);
 extern void testfunction3();
 extern void updateColor(unsigned int shaderProgram);
-
-#endif
