@@ -35,6 +35,10 @@
     <None Include="res\shaders\dummyShader.frag" />
     <None Include="res\shaders\dummyShader.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\images\dummyImage1.jpg" />
+    <Image Include="res\images\dummyImage2.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
