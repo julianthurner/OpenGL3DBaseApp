@@ -29,3 +29,5 @@ extern void updateColor(unsigned int shaderProgram);
 extern void testfunction4(Rectangle* rectangle);
 extern void testfunction5();
 extern void testfunction6(Shader* shader, float delta);
+extern void testfunction7(Shader* shader);
+extern void testfunction8(Shader* shader);

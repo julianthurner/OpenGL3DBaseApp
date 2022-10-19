@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -203,4 +207,21 @@ void testfunction6(Shader* shader, float delta) {
 	}
 
 	shader->setFloat("blendValue", blendValue);
+}
+
+void testfunction7(Shader* shader) {
+	glm::mat4 transformMatrix = glm::mat4(1.0f); // Creates identity matrix
+	transformMatrix = glm::translate(transformMatrix, glm::vec3(0.5f, -0.5, 0.0f));
+	transformMatrix = glm::rotate(transformMatrix, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+	
+	shader->setMat4("transformMatrix", transformMatrix);
+}
+
+void testfunction8(Shader* shader) {
+	glm::mat4 transformMatrix = glm::mat4(1.0f); // Creates identity matrix
+	transformMatrix = glm::translate(transformMatrix, glm::vec3(-0.5f, 0.5, 0.0f));
+	transformMatrix = glm::scale(transformMatrix, glm::vec3(sin(glfwGetTime()) / 2 + 0.5, sin(glfwGetTime()) / 2 + 0.5, 0.0f));
+	
+
+	shader->setMat4("transformMatrix", transformMatrix);
 }

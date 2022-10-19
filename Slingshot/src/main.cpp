@@ -23,7 +23,9 @@ int main(int argc, char** argv) {
 	//Triangle* triangle2 = new Triangle();
 	//unsigned int VAO2 = testfunction(triangle2);
 	Rectangle* rectangle = new Rectangle("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
-	unsigned int VAO = testfunction2(rectangle);
+	Rectangle* rectangle2 = new Rectangle("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
+	unsigned int VAO1 = testfunction2(rectangle);
+	unsigned int VAO2 = testfunction2(rectangle2);
 
 	dummyShader.use();
 
@@ -36,8 +38,9 @@ int main(int argc, char** argv) {
 	testfunction6(&dummyShader, 0.5f);
 
 	testfunction4(rectangle);
+	testfunction4(rectangle2);
 
-	// Main loop
+		// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Process the user's key presses
@@ -46,10 +49,12 @@ int main(int argc, char** argv) {
 		// Render
 		testfunction3();
 
+		testfunction7(&dummyShader);
+
 		//glBindTexture(GL_TEXTURE_2D, rectangle->textureID);
 
 		//glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO1);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		
 		//updateColor(shaderProgram);
@@ -59,7 +64,13 @@ int main(int argc, char** argv) {
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(VAO1);
+
+
+		testfunction8(&dummyShader);
+		glBindVertexArray(VAO2);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(VAO2);
 		
 		// Check and call events and swap buffers
 		glfwSwapBuffers(window);
