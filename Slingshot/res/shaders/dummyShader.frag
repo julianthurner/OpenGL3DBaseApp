@@ -1,5 +1,4 @@
 #version 330 core
-in vec3 vertexColor;
 in vec2 vertexTexturePos;
 
 uniform sampler2D texture1;

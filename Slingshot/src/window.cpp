@@ -4,6 +4,8 @@
 
 #include "window.hpp"
 
+float aspectRatio;
+
 GLFWwindow* initializeWindow(int* resCode) {
     // Set basic settings
     glfwInit();
@@ -11,9 +13,10 @@ GLFWwindow* initializeWindow(int* resCode) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Create window
+    // Create window and save current aspectRatio
     GLFWwindow* window = glfwCreateWindow(800, 600, "Slingshot", NULL, NULL);
     glfwMakeContextCurrent(window);
+    aspectRatio = 800.0f / 600;
 
     // Initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -35,6 +38,7 @@ GLFWwindow* initializeWindow(int* resCode) {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    aspectRatio = (float)width / height;
 }
 
 // Currently unused, left in the code if needed later
