@@ -41,7 +41,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     aspectRatio = (float)width / height;
 }
 
-// Currently unused, left in the code if needed later
 void getScreenSize(int* width, int* height) {
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);

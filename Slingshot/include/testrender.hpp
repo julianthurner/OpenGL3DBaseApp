@@ -3,6 +3,7 @@
 #include <array>
 
 #include "shaders.hpp"
+#include "camera.hpp"
 
 class Triangle {
 public:
@@ -38,7 +39,7 @@ extern void updateColor(unsigned int shaderProgram);
 extern void testfunction4(Rectangle* rectangle);
 extern void testfunction5();
 extern void testfunction6(Shader* shader, float delta);
-extern void testfunction7(Shader* shader);
+extern void testfunction7(Shader* shader, Camera* cam);
 extern unsigned int testfunction8(Cube* cube);
 extern void testfunction9(Cube* cube);
 extern void testfunction10(Shader* shader, unsigned int i);

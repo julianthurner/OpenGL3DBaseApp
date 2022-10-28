@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shaders.cpp" />
@@ -26,6 +27,7 @@
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\camera.hpp" />
     <ClInclude Include="include\input.hpp" />
     <ClInclude Include="include\shaders.hpp" />
     <ClInclude Include="include\testrender.hpp" />

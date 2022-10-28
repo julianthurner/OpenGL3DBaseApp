@@ -4,6 +4,7 @@
 #include "input.hpp"
 #include "testrender.hpp"
 #include "shaders.hpp"
+#include "camera.hpp"
 
 int main(int argc, char** argv) {
 	int resCode;
@@ -29,6 +30,11 @@ int main(int argc, char** argv) {
 	Cube* cube = new Cube("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
 	unsigned int VAO = testfunction8(cube);
 
+	Camera* cam = new Camera(
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		2.5f);
+
 	dummyShader.use();
 
 	// Initialize the uniforms (should be moved to separate function later)
@@ -46,16 +52,33 @@ int main(int argc, char** argv) {
 	// Enable depth testint (otherwise vertices may override each other)
 	glEnable(GL_DEPTH_TEST);
 
+	float deltaTime = 0.0f;	// Time between current frame and last frame
+	float lastFrame = 0.0f; // Time of last frame
+
+	// Tell OpenGL to capture the mouse
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	// Register mouse callback and zoomwheel callback
+	glfwSetCursorPosCallback(window, processMouse);
+	glfwSetScrollCallback(window, processScrollwheel);
+
+	initializeMouse(cam);
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Calculate frame times
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		
 		// Process the user's key presses
-		processInput(window, &dummyShader);
+		processKeyboardInput(window, &dummyShader, deltaTime);
 
 		// Render
 		testfunction3();
 
-		testfunction7(&dummyShader);
+		testfunction7(&dummyShader, cam);
 
 		//glBindTexture(GL_TEXTURE_2D, rectangle->textureID);
 
@@ -105,6 +128,9 @@ int main(int argc, char** argv) {
 * Cleanup includes
 * Change the disclaimer to better reflect which code is my own
 * Add missing documentation
-* Optimize the code (-> object only re-calculated when moved or altered in some way)
-* Use more unsigned ints
+* Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
+* Use more unsigned ints and more consts
+* Optimize readability of the code
+* Catch more errors
+* Change the functions and classes so that static objects are given only once at initialization
 */

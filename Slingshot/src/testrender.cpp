@@ -340,20 +340,17 @@ void testfunction6(Shader* shader, float delta) {
 	shader->setFloat("blendValue", blendValue);
 }
 
-void testfunction7(Shader* shader) {
+void testfunction7(Shader* shader, Camera* cam) {
 	// For the model matrix, rotate the object around the x-Axis so that it looks like it's lying on the floor
 	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-	// For the view matrix, we simulate backwards movement of the camera by moving the object towards negative z
-	// Also, we move the camera among the axes over time
-	glm::mat4 viewMatrix = glm::mat4(1.0f); // Start off with an identity matrix
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, sin(glfwGetTime()) / 2 + 0.5, 0.0f));
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
+	// For the view matrix, retrieve it from the camera
+	glm::mat4 viewMatrix = cam->calculateViewMatrix();
 
-	// For the projection matrix, use FOV 45
+	// For the projection matrix, retrieve the FOV from the camera
 	// Third and fourth parameter determine the near plane and far plane distance relative to the camera
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam->fov), aspectRatio, 0.1f, 100.0f);
 	
 	shader->setMat4("modelMatrix", modelMatrix);
 	shader->setMat4("viewMatrix", viewMatrix);
