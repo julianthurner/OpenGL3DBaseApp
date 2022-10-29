@@ -93,4 +93,5 @@ int main(int argc, char** argv) {
 * Cleanup includes
 * Change the disclaimer to better reflect which code is my own
 * Add missing documentation
+* Check if const-ness is correct in class files
 */
