@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	Camera* cam = new Camera(
 		glm::vec3(0.0f, 0.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
-		2.5f);
+		2.5f, 150.0f);
 
 	dummyShader.use();
 
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 	glfwSetCursorPosCallback(window, processMouse);
 	glfwSetScrollCallback(window, processScrollwheel);
 
-	initializeMouse(cam);
+	initializeCamera(cam);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -121,17 +121,20 @@ int main(int argc, char** argv) {
 
 /*
 * To dos:
-* Remove Testrender dummy
-* Remove dummyShaders
+* Make Testrender into an actual render class
 * Cleanup main function
-* Define key bindings
 * Cleanup includes
 * Change the disclaimer to better reflect which code is my own
 * Add missing documentation
 * Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
 * Use more unsigned ints and more consts
+* Check if const-ness is correct in class files
 * Optimize readability of the code
 * Catch more errors
 * Change the functions and classes so that static objects are given only once at initialization
-* Check if const-ness is correct in class files
+* Use references instead of pointers where applicable
+* Should function documentation be moved into header files?
+* Replace dummy pictures
+* Make the shaders generic and rename them
+* Implement a floor plane
 */

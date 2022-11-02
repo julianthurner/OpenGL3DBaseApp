@@ -1,6 +1,10 @@
+// Remove later
+#include <iostream>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "input.hpp"
 #include "testrender.hpp"
@@ -8,15 +12,10 @@
 
 bool downKeyPressed = false, upKeyPressed = false;
 float mouse_last_x, mouse_last_y;
-float mouseSensitivity;
 bool mouse_initialize = true;
-float yaw, pitch;
 Camera* cam;
 
-void initializeMouse(Camera* camera) {
-	mouseSensitivity = 0.1f;
-	yaw = -90.0f; pitch = 0.0f;
-
+void initializeCamera(Camera* camera) {
 	cam = camera;
 }
 
@@ -59,57 +58,53 @@ void processKeyboardInput(GLFWwindow* window, Shader* shader, float deltaTime) {
 		cam->cameraPosition -= cam->cameraDirectionVector * cam->cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		glm::vec3 delta = cam->cameraRightVector * cam->cameraSpeed * deltaTime;
-		cam->cameraPosition -= delta;
+		cam->cameraPosition -= cam->cameraRightVector * cam->cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		glm::vec3 delta = cam->cameraRightVector * cam->cameraSpeed * deltaTime;
-		cam->cameraPosition += delta;
+		cam->cameraPosition += cam->cameraRightVector * cam->cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+		cam->updateRotation(-cam->rollSpeed * deltaTime); // Positive angles rotate clockwise
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+		cam->updateRotation(cam->rollSpeed * deltaTime); // Negative angles rotate counter-clockwise
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		cam->cameraPosition += cam->cameraUpVector * cam->cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		cam->cameraPosition -= cam->cameraUpVector * cam->cameraSpeed * deltaTime;
 	}
 }
 
 // x and y hold the mouse's current position
-void processMouse(GLFWwindow* window, double current_x, double current_y) {
+void processMouse(GLFWwindow* window, double current_x, double current_y) {	
 	if (mouse_initialize) {
 		mouse_last_x = current_x;
 		mouse_last_y = current_y;
 		mouse_initialize = false;
 	}
-	
-	float xOffset = current_x - mouse_last_x;
-	float yOffset = mouse_last_y - current_y; // Reversed since y-coordinates range from bottom to top
+
+	float mouseSensitivity = cam->mouseSensitivity;
+
+	float xOffset = mouse_last_x - current_x; // Reversed due to rotation being clockwise for positive values and vise versa
+	float yOffset = mouse_last_y - current_y; // Same here
 	mouse_last_x = current_x;
 	mouse_last_y = current_y;
 
-	yaw += xOffset * mouseSensitivity;
-	pitch += yOffset * mouseSensitivity;
-
-	// Prevents the user from looking further than at the sky or his feet (otherwise we'd get a flip at +/- 90°)
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
-	}
-	else if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
-	
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cam->cameraDirectionVector = glm::normalize(direction);
-
-	// We need to update the right vector specifically (rotation currently isn't possible so the up vector stays the same)
-	cam->updateCameraVectors();
+	cam->updateYawAndPitch(xOffset * mouseSensitivity, yOffset * mouseSensitivity);
 }
 
 void processScrollwheel(GLFWwindow* window, double xOffset, double yOffset) {
+	float fov = cam->fov;
 	// Subtract because scrolling forward increases the yOffset, but zooming inwards means a lower FOV value
-	cam->fov -= (float)yOffset;
+	fov -= (float)yOffset;
 	// Set limits to the zoom level so that we don't get any weird flips at 0° and 90°
-	if (cam->fov < 1.0f) {
-		cam->fov = 1.0f;
+	if (fov < 1.0f) {
+		fov = 1.0f;
 	}
-	else if (cam->fov > 89.0f) {
-		cam->fov = 89.0f;
-	}	
+	else if (fov > 89.0f) {
+		fov = 89.0f;
+	}
+	cam->fov = fov;
 }

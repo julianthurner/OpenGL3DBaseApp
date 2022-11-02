@@ -8,13 +8,15 @@ class Camera {
 public:
 	glm::vec3 cameraPosition;
 	glm::vec3 cameraDirectionVector;
-	glm::vec3 cameraRightVector;
 	glm::vec3 cameraUpVector;
+	glm::vec3 cameraRightVector;
 	float fov;
-	float cameraSpeed;
+	float cameraSpeed, rollSpeed;
+	float mouseSensitivity;
 
-	Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float givenCameraSpeed);
+	Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float givenCameraSpeed, float givenRollSpeed);
 
-	void updateCameraVectors();
+	void updateYawAndPitch(float yawOffset, float pitchOffset);
+	void updateRotation(float rollOffset);
 	glm::mat4 calculateViewMatrix();
 };
