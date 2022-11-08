@@ -15,6 +15,11 @@ GLFWwindow* initializeWindow(int* resCode) {
 
     // Create window and save current aspectRatio
     GLFWwindow* window = glfwCreateWindow(800, 600, "Slingshot", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "Failed to create GLFW window\n";
+        glfwTerminate();
+        *resCode = -1;
+    }
     glfwMakeContextCurrent(window);
     aspectRatio = 800.0f / 600;
 

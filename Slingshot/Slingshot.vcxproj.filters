@@ -30,7 +30,7 @@
     <ClCompile Include="src\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\testrender.cpp">
+    <ClCompile Include="src\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shaders.cpp">
@@ -47,7 +47,7 @@
     <ClInclude Include="include\input.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\testrender.hpp">
+    <ClInclude Include="include\render.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\shaders.hpp">
@@ -62,6 +62,18 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="res\shaders\dummyShader.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="res\shaders\triangleShader.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="res\shaders\triangleShader.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="res\shaders\rectangleShader.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="res\shaders\rectangleShader.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

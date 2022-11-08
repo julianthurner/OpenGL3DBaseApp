@@ -1,6 +1,9 @@
 // Remove later
 #include <iostream>
 #include "glm/gtx/string_cast.hpp"
+#include <glm/gtx/quaternion.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "camera.hpp"
 
@@ -26,6 +29,18 @@ Camera::Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float
 
 // Changes the camera's direction
 void Camera::updateYawAndPitch(float yawOffset, float pitchOffset) {
+	// Implement this
+	double starttime = glfwGetTime();
+	glm::quat yawRotationQuaternion2 =glm::angleAxis(glm::radians(yawOffset), cameraUpVector);
+	glm::mat4 yawRotationMatrix3 = glm::toMat4(yawRotationQuaternion2);
+	glm::vec3 cameraRightVector3 = glm::vec3(yawRotationMatrix3 * glm::vec4(cameraRightVector, 1.0f));
+	glm::quat pitchRotationQuaternion2 = glm::angleAxis(glm::radians(pitchOffset), cameraRightVector3);
+	glm::mat4 pitchRotationMatrix3 = glm::toMat4(pitchRotationQuaternion2);
+	glm::vec3 cameraUpVector3 = glm::vec3(yawRotationMatrix3 * glm::vec4(cameraUpVector, 1.0f));
+	glm::quat finalQuaternion = yawRotationQuaternion2 * pitchRotationQuaternion2;
+	glm::mat4 finalMatrix = glm::toMat4(finalQuaternion);
+	glm::vec3 cameraDirectionVector3 = glm::normalize(glm::vec3(finalMatrix * glm::vec4(cameraDirectionVector, 1.0f)));
+	
 	// For the yaw, we rotate the camera around the up vector and update the now changed right vector
 	glm::mat4 yawRotationMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	yawRotationMatrix = glm::rotate(yawRotationMatrix, glm::radians(yawOffset), cameraUpVector);
@@ -43,6 +58,13 @@ void Camera::updateYawAndPitch(float yawOffset, float pitchOffset) {
 
 // Rotates the camera by the amount given
 void Camera::updateRotation(float rollOffset) {
+	// Implement this
+	double starttime = glfwGetTime();
+	glm::quat rotationQuaternion = glm::angleAxis(glm::radians(rollOffset), cameraDirectionVector);
+	glm::mat4 rotationMatrix2 = glm::toMat4(rotationQuaternion);
+	glm::vec3 newUpVector2 = glm::vec3(rotationMatrix2 * glm::vec4(cameraUpVector, 1.0f));
+	glm::vec3 newRightVector2 = glm::vec3(rotationMatrix2 * glm::vec4(cameraRightVector, 1.0f));
+	
 	// First, we calculate a rotation matrix that rotates our camera around its direction vector
 	glm::mat4 rotationMatrix = glm::mat4(1.0f); // Start off with identity matrix
 	rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rollOffset), cameraDirectionVector);

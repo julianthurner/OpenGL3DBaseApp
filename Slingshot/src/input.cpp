@@ -7,7 +7,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "input.hpp"
-#include "testrender.hpp"
+#include "render.hpp"
 #include "window.hpp"
 
 bool downKeyPressed = false, upKeyPressed = false;
@@ -15,7 +15,7 @@ float mouse_last_x, mouse_last_y;
 bool mouse_initialize = true;
 Camera* cam;
 
-void initializeCamera(Camera* camera) {
+void initializeInput(Camera* camera) {
 	cam = camera;
 }
 
@@ -33,7 +33,7 @@ void processKeyboardInput(GLFWwindow* window, Shader* shader, float deltaTime) {
 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		if (!upKeyPressed) {
-			testfunction6(shader, 0.1f);
+			updateBlendValue(shader, 0.1f);
 			upKeyPressed = true;
 		}
 	}
@@ -43,7 +43,7 @@ void processKeyboardInput(GLFWwindow* window, Shader* shader, float deltaTime) {
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		if (!downKeyPressed) {
-			testfunction6(shader, -0.1f);
+			updateBlendValue(shader, -0.1f);
 			downKeyPressed = true;
 		}
 	}

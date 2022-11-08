@@ -2,35 +2,21 @@
 
 #include "window.hpp"
 #include "input.hpp"
-#include "testrender.hpp"
+#include "render.hpp"
 #include "shaders.hpp"
 #include "camera.hpp"
 
 int main(int argc, char** argv) {
 	int resCode;
 	GLFWwindow* window = initializeWindow(&resCode);
-	if (window == NULL)	{
-		std::cout << "Failed to create GLFW window\n";
-		glfwTerminate();
-		resCode = -1;
-	}
 
-	testfunction5();
+	initializeRender();
 
 	Shader dummyShader = Shader("res/shaders/dummyShader.vert", "res/shaders/dummyShader.frag");
+	
+	Cube cube = Cube("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
 
-	//Triangle* triangle1 = new Triangle();
-	//unsigned int VAO1 = testfunction(triangle1);
-	//Triangle* triangle2 = new Triangle();
-	//unsigned int VAO2 = testfunction(triangle2);
-	//Rectangle* rectangle = new Rectangle("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
-	//Rectangle* rectangle2 = new Rectangle("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
-	//unsigned int VAO1 = testfunction2(rectangle);
-	//unsigned int VAO2 = testfunction2(rectangle2);
-	Cube* cube = new Cube("res/images/dummyImage1.jpg", "res/images/dummyImage2.png");
-	unsigned int VAO = testfunction8(cube);
-
-	Camera* cam = new Camera(
+	Camera cam = Camera(
 		glm::vec3(0.0f, 0.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		2.5f, 150.0f);
@@ -43,13 +29,11 @@ int main(int argc, char** argv) {
 	dummyShader.setInt("texture1", 0);
 	dummyShader.setInt("texture2", 1);
 
-	testfunction6(&dummyShader, 0.5f);
+	// Test what happens if you load multiple objects with different textures
 
-	//testfunction4(rectangle);
-	//testfunction4(rectangle2);
-	testfunction9(cube);
+	updateBlendValue(&dummyShader, 0.5f);
 
-	// Enable depth testint (otherwise vertices may override each other)
+	// Enable depth testing (otherwise vertices may override each other)
 	glEnable(GL_DEPTH_TEST);
 
 	float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -62,7 +46,20 @@ int main(int argc, char** argv) {
 	glfwSetCursorPosCallback(window, processMouse);
 	glfwSetScrollCallback(window, processScrollwheel);
 
-	initializeCamera(cam);
+	initializeInput(&cam);
+
+	glm::vec3* cubePositions = new glm::vec3[10] {
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(2.0f,  5.0f, -15.0f),
+			glm::vec3(-1.5f, -2.2f, -2.5f),
+			glm::vec3(-3.8f, -2.0f, -12.3f),
+			glm::vec3(2.4f, -0.4f, -3.5f),
+			glm::vec3(-1.7f,  3.0f, -7.5f),
+			glm::vec3(1.3f, -2.0f, -2.5f),
+			glm::vec3(1.5f,  2.0f, -2.5f),
+			glm::vec3(1.5f,  0.2f, -1.5f),
+			glm::vec3(-1.3f,  1.0f, -1.5f),
+	};
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -76,43 +73,17 @@ int main(int argc, char** argv) {
 		processKeyboardInput(window, &dummyShader, deltaTime);
 
 		// Render
-		testfunction3();
+		clearWindow();
+		updateMatrices(&dummyShader, &cam);
+		cube.renderMultiple(&dummyShader, cubePositions);
 
-		testfunction7(&dummyShader, cam);
-
-		//glBindTexture(GL_TEXTURE_2D, rectangle->textureID);
-
-		//glUseProgram(shaderProgram);
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		
-		//updateColor(shaderProgram);
-		//glBindVertexArray(VAO1);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++) {
-			testfunction10(&dummyShader, i);
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//glBindVertexArray(VAO);
-
-
-		//testfunction8(&dummyShader);
-		//glBindVertexArray(VAO2);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//glBindVertexArray(VAO2);
-
-
-		
 		// Check and call events and swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// Cleanup
+	delete[] cubePositions;
 	glfwTerminate();
 	resCode = 0;
 
@@ -121,9 +92,12 @@ int main(int argc, char** argv) {
 
 /*
 * To dos:
-* Make Testrender into an actual render class
+* Find out if we can fetch RGB data from the image
+* Implement a resource manager
+* Write a function initializeShaders that sets up all the needed shaders with textures and stuff
 * Cleanup main function
 * Cleanup includes
+* Make sure that every "new" has a "delete"
 * Change the disclaimer to better reflect which code is my own
 * Add missing documentation
 * Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
@@ -137,4 +111,6 @@ int main(int argc, char** argv) {
 * Replace dummy pictures
 * Make the shaders generic and rename them
 * Implement a floor plane
+* Use std:endl for outputs
+* Implement quaternions
 */
