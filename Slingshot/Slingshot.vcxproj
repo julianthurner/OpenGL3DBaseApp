@@ -22,6 +22,7 @@
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\resourceManager.cpp" />
     <ClCompile Include="src\shaders.cpp" />
     <ClCompile Include="src\render.cpp" />
     <ClCompile Include="src\window.cpp" />
@@ -29,13 +30,14 @@
   <ItemGroup>
     <ClInclude Include="include\camera.hpp" />
     <ClInclude Include="include\input.hpp" />
+    <ClInclude Include="include\resourceManager.hpp" />
     <ClInclude Include="include\shaders.hpp" />
     <ClInclude Include="include\render.hpp" />
     <ClInclude Include="include\window.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\dummyShader.frag" />
-    <None Include="res\shaders\dummyShader.vert" />
+    <None Include="res\shaders\cubeShader.frag" />
+    <None Include="res\shaders\cubeShader.vert" />
     <None Include="res\shaders\rectangleShader.frag" />
     <None Include="res\shaders\rectangleShader.vert" />
     <None Include="res\shaders\triangleShader.frag" />

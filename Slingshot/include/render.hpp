@@ -1,6 +1,12 @@
 #pragma once
 
 #include <array>
+#include <string>
+#include <vector>
+
+// Always include GLAD before GLFW or anything else that requires OpenGL
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "shaders.hpp"
 #include "camera.hpp"
@@ -23,10 +29,10 @@ private:
 	unsigned int texture1ID;
 	unsigned int texture2ID;
 
-	void initializeTextures(const char* texture1Path, const char* texture2Path);
+	void initializeTextures(std::string& texture1Path, std::string& texture2Path);
 	void initializeVAO();
 public:
-	Rectangle(const char* texture1Path, const char* texture2Path);
+	Rectangle(std::string texture1Path, std::string texture2Path);
 
 	void render();
 };
@@ -37,16 +43,16 @@ private:
 	unsigned int texture1ID;
 	unsigned int texture2ID;
 
-	void initializeTextures(const char* texture1Path, const char* texture2Path);
+	void initializeTextures(std::string& texture1Path, std::string& texture2Path);
 	void initializeVAO();
-	void updateModelMatrix(Shader* shader, glm::vec3 cubePosition);
+	void updateModelMatrix(Shader& shader, glm::vec3 cubePosition);
 public:
-	Cube(const char* texture1Path, const char* texture2Path);
+	Cube(std::string texture1Path, std::string texture2Path);
 
-	void renderMultiple(Shader* shader, glm::vec3* cubePositions);
+	void renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions);
 };
 
-extern void initializeRender();
+extern void initializeRender(GLFWwindow& window);
 extern void clearWindow();
-extern void updateBlendValue(Shader* shader, float delta);
-extern void updateMatrices(Shader* shader, Camera* cam);
+extern void updateBlendValue(Shader& shader, float delta);
+extern void updateMatrices(Shader& shader, Camera& cam);

@@ -6,18 +6,72 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 // Seems strange, but this is the correct way of including stb_image.h
 #define STB_IMAGE_IMPLEMENTATION
 #include "STB/stb_image.h"
 
 #include "render.hpp"
+#include "input.hpp"
 #include "window.hpp"
 
+//** Private **//
 float blendValue;
 
+void loadTexture(std::string& texturePath, unsigned int& textureID) {
+	// Load the image from file
+	int width, height, numberOfColorChannels, rgbType;
+	// 1st argument takes a const char* to the filepath
+	// 2nd, 3rd and 4th argument take pointers to store width, height and number of color channels in
+	// 5th argument can be used to force number of 8-bit components per pixel. We don't need that, so we leave it at 0
+	// As much as I hate it, stbi_load actually requires you to store a raw pointer, there's no way around it
+	// Otherwise you won't be able to call stbi_image_free later on
+	unsigned char* imageData = stbi_load(texturePath.c_str(), &width, &height, &numberOfColorChannels, 0);
+	// 3 color channels means no alpha channel, 4 means there is one
+	switch (numberOfColorChannels) {
+	case 3:
+		rgbType = GL_RGB;
+		break;
+	case 4:
+		rgbType = GL_RGBA;
+		break;
+	default:
+		std::cout << "Error: Image's color channels were not properly recognized." << std::endl;
+	}
+
+	// Generate a new texture. First argument is the number of textures to create
+	glGenTextures(1, &textureID);
+	// Tells OpenGL which texture we are currently working with. First argument specifies type of texture, second one takes the ID
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Set texture wrapping to "Mirror" on both axes (-> S-axe and T-axe which correspond to x and y)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	// Set texture filtering to "Linear"
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Set mipmapping to "Linear"
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	// Fill the created texture with the previously loaded image data
+	if (imageData) {
+		// First argument is the type of the texture, second one is for setting mipmap levels manually which we don't want to do -> leave at 0
+		// Third argument tells OpenGL the format the texture is to be stored in, 4th and 5th argument should be self-explanatory
+		// 6th argument has to be 0 at all times (specifies border width; legacy)
+		// 7th argument specifies the format of the source image (in this case RGB without alpha channel, so GL_RGB)
+		// 8th argument specifies the datatype of the source image; since we stored it as unsigned char (-> byte), this has to be GL_UNSIGNED_BYTE
+		// 9th argument is a pointer to the actual image data
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgbType, GL_UNSIGNED_BYTE, imageData);
+		// This function automatically creates mipmaps for the texture
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	// Free the image from memory
+	stbi_image_free(imageData);
+}
+
+//** Public **//
 Triangle::Triangle() {
 	std::array<float, 18> vertices = {
 		// positions			// colors
@@ -87,66 +141,14 @@ void Triangle::render() {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-Rectangle::Rectangle(const char* texture1Path, const char* texture2Path) {
+Rectangle::Rectangle(std::string texture1Path, std::string texture2Path) {
 	initializeTextures(texture1Path, texture2Path);
 	initializeVAO();
 }
 
-void Rectangle::initializeTextures(const char* texture1Path, const char* texture2Path) {
-	// Load the image from file
-	int width, height, numberOfColorChannels;
-	// 5th argument can be used to force number of 8-bit components per pixel. We don't need that, so we leave it at 0
-	unsigned char* imageData1 = stbi_load(texture1Path, &width, &height, &numberOfColorChannels, 0);
-
-	// Generate a new texture. First argument is the number of textures to create
-	glGenTextures(1, &texture1ID);
-	// Tells OpenGL which texture we are currently working with. First argument specifies type of texture, second one takes the ID
-	glBindTexture(GL_TEXTURE_2D, texture1ID);
-
-	// Set texture wrapping to "Mirror" on both axes (-> S-axe and T-axe which correspond to x and y)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	// Set texture filtering to "Linear"
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Set mipmapping to "Linear"
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	// Fill the created texture with the previously loaded image data
-	if (imageData1) {
-		// First argument is the type of the texture, second one is for setting mipmap levels manually which we don't want to do -> leave at 0
-		// Third argument tells OpenGL the format the texture is to be stored in, 4th and 5th argument should be self-explanatory
-		// 6th argument has to be 0 at all times (specifies border width; legacy)
-		// 7th argument specifies the format of the source image (in this case RGB without alpha channel, so GL_RGB)
-		// 8th argument specifies the datatype of the source image; since we stored it as unsigned char (-> byte), this has to be GL_UNSIGNED_BYTE
-		// 9th argument is a pointer to the actual image data
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData1);
-		// This function automatically creates mipmaps for the texture
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load texture 1\n";
-	}
-
-	// Free the image from memory
-	stbi_image_free(imageData1);
-
-	// Repeat the same process for the second texture
-	unsigned char* imageData2 = stbi_load(texture2Path, &width, &height, &numberOfColorChannels, 0);
-	glGenTextures(1, &texture2ID);
-	glBindTexture(GL_TEXTURE_2D, texture2ID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	if (imageData2) {
-		// This time the image has an alpha channel, thus use GL_RGBA
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData2);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load texture 2\n";
-	}
-	stbi_image_free(imageData2);
+void Rectangle::initializeTextures(std::string& texture1Path, std::string& texture2Path) {
+	loadTexture(texture1Path, texture1ID);
+	loadTexture(texture2Path, texture2ID);
 }
 
 void Rectangle::initializeVAO() {
@@ -246,66 +248,14 @@ void Rectangle::render() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-Cube::Cube(const char* texture1Path, const char* texture2Path) {
+Cube::Cube(std::string texture1Path, std::string texture2Path) {
 	initializeTextures(texture1Path, texture2Path);
 	initializeVAO();
 }
 
-void Cube::initializeTextures(const char* texture1Path, const char* texture2Path) {
-	// Load the image from file
-	int width, height, numberOfColorChannels;
-	// 5th argument can be used to force number of 8-bit components per pixel. We don't need that, so we leave it at 0
-	unsigned char* imageData1 = stbi_load(texture1Path, &width, &height, &numberOfColorChannels, 0);
-
-	// Generate a new texture. First argument is the number of textures to create
-	glGenTextures(1, &texture1ID);
-	// Tells OpenGL which texture we are currently working with. First argument specifies type of texture, second one takes the ID
-	glBindTexture(GL_TEXTURE_2D, texture1ID);
-
-	// Set texture wrapping to "Mirror" on both axes (-> S-axe and T-axe which correspond to x and y)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	// Set texture filtering to "Linear"
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Set mipmapping to "Linear"
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	// Fill the created texture with the previously loaded image data
-	if (imageData1) {
-		// First argument is the type of the texture, second one is for setting mipmap levels manually which we don't want to do -> leave at 0
-		// Third argument tells OpenGL the format the texture is to be stored in, 4th and 5th argument should be self-explanatory
-		// 6th argument has to be 0 at all times (specifies border width; legacy)
-		// 7th argument specifies the format of the source image (in this case RGB without alpha channel, so GL_RGB)
-		// 8th argument specifies the datatype of the source image; since we stored it as unsigned char (-> byte), this has to be GL_UNSIGNED_BYTE
-		// 9th argument is a pointer to the actual image data
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData1);
-		// This function automatically creates mipmaps for the texture
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load texture 1\n";
-	}
-
-	// Free the image from memory
-	stbi_image_free(imageData1);
-
-	// Repeat the same process for the second texture
-	unsigned char* imageData2 = stbi_load(texture2Path, &width, &height, &numberOfColorChannels, 0);
-	glGenTextures(1, &texture2ID);
-	glBindTexture(GL_TEXTURE_2D, texture2ID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	if (imageData2) {
-		// This time the image has an alpha channel, thus use GL_RGBA
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData2);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load texture 2\n";
-	}
-	stbi_image_free(imageData2);
+void Cube::initializeTextures(std::string& texture1Path, std::string& texture2Path) {
+	loadTexture(texture1Path, texture1ID);
+	loadTexture(texture2Path, texture2ID);
 }
 
 void Cube::initializeVAO() {
@@ -394,7 +344,7 @@ void Cube::initializeVAO() {
 	glEnableVertexAttribArray(1);
 }
 
-void Cube::updateModelMatrix(Shader* shader, glm::vec3 cubePosition) {
+void Cube::updateModelMatrix(Shader& shader, glm::vec3 cubePosition) {
 	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	modelMatrix = glm::translate(modelMatrix, cubePosition); // Translate by the given vector
 
@@ -403,10 +353,10 @@ void Cube::updateModelMatrix(Shader* shader, glm::vec3 cubePosition) {
 	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
 	// Update the model matrix
-	shader->setMat4("modelMatrix", modelMatrix);
+	shader.setMat4("modelMatrix", modelMatrix);
 }
 
-void Cube::renderMultiple(Shader* shader, glm::vec3* cubePositions) {
+void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions) {
 	//* Bind textures to their corresponding texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1ID);
@@ -431,7 +381,17 @@ void Cube::renderMultiple(Shader* shader, glm::vec3* cubePositions) {
 	}
 }
 
-void initializeRender() {
+void initializeRender(GLFWwindow& window) {
+	//* Setup OpenGL
+	// Enable depth testing (otherwise vertices may override each other); only needed for 3D applications
+	glEnable(GL_DEPTH_TEST);
+	// Tell OpenGL to capture the mouse
+	glfwSetInputMode(&window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// Register mouse callback and zoomwheel callback
+	glfwSetCursorPosCallback(&window, processMouse);
+	glfwSetScrollCallback(&window, processScrollwheel);
+	
+	//* Setup STBI
 	// This is important so that images aren't flipped when they are loaded
 	stbi_set_flip_vertically_on_load(true);
 }
@@ -442,39 +402,31 @@ void clearWindow() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void updateBlendValue(Shader* shader, float delta) {
-	if (blendValue) {
-		blendValue += delta;
-		if (blendValue > 1.0f) {
-			blendValue = 1.0f;
-		}
-		else if (blendValue < 0.0f) {
-			blendValue = 0.0f;
-		}
-
+void updateBlendValue(Shader& shader, float delta) {
+	blendValue += delta;
+	if (blendValue > 1.0f) {
+		blendValue = 1.0f;
 	}
-	else {
-		if (delta > 0) {
-			blendValue = delta;
-		}
+	else if (blendValue < 0.0f) {
+		blendValue = 0.0f;
 	}
 
-	shader->setFloat("blendValue", blendValue);
+	shader.setFloat("blendValue", blendValue);
 }
 
-void updateMatrices(Shader* shader, Camera* cam) {
+void updateMatrices(Shader& shader, Camera& cam) {
 	// For the model matrix, rotate the object around the x-Axis so that it looks like it's lying on the floor
 	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 	// For the view matrix, retrieve it from the camera
-	glm::mat4 viewMatrix = cam->calculateViewMatrix();
+	glm::mat4 viewMatrix = cam.calculateViewMatrix();
 
 	// For the projection matrix, retrieve the FOV from the camera
 	// Third and fourth parameter determine the near plane and far plane distance relative to the camera
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam->fov), aspectRatio, 0.1f, 100.0f);
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam.fov), aspectRatio, 0.1f, 100.0f);
 	
-	shader->setMat4("modelMatrix", modelMatrix);
-	shader->setMat4("viewMatrix", viewMatrix);
-	shader->setMat4("projectionMatrix", projectionMatrix);
+	shader.setMat4("modelMatrix", modelMatrix);
+	shader.setMat4("viewMatrix", viewMatrix);
+	shader.setMat4("projectionMatrix", projectionMatrix);
 }

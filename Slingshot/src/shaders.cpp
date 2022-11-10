@@ -4,11 +4,13 @@
 #include <sstream>
 #include <iostream>
 
+// Always include GLAD before GLFW or anything else that requires OpenGL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "shaders.hpp"
 
+//** Public **//
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	/* Read the shaders from file */
 	// Retrieve the vertex and fragment source code from filePath

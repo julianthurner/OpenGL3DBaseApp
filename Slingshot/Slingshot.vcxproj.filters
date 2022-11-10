@@ -39,6 +39,9 @@
     <ClCompile Include="src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\resourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\window.hpp">
@@ -56,12 +59,15 @@
     <ClInclude Include="include\camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\resourceManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\dummyShader.vert">
+    <None Include="res\shaders\cubeShader.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="res\shaders\dummyShader.frag">
+    <None Include="res\shaders\cubeShader.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="res\shaders\triangleShader.vert">
