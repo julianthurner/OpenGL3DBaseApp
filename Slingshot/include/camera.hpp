@@ -14,7 +14,6 @@ public:
 	float cameraSpeed, rollSpeed;
 	float mouseSensitivity;
 
-	Camera();
 	Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float givenCameraSpeed, float givenRollSpeed);
 
 	void updateYawAndPitch(float yawOffset, float pitchOffset);

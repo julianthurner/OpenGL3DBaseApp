@@ -12,9 +12,6 @@
 //** Private **//
 
 //** Public **//
-Camera::Camera() {
-	//
-}
 Camera::Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float givenCameraSpeed, float givenRollSpeed) {
 	cameraPosition = givenCameraPosition;
 	// Note that we use a directionVector that is pointing *away* from the camera instead of towards

@@ -1,10 +1,13 @@
+#include <memory>
+
 #include "resourceManager.hpp"
 #include "render.hpp"
 #include "window.hpp"
 #include "input.hpp"
 
 //** Private **//
-Camera cam;
+// Due to C++ immediately defining object declarations (which is very inflexible), we use a smart pointer to store the camera
+std::unique_ptr<Camera> cam;
 std::vector<Shader> shaders;
 std::vector<Cube> cubes;
 std::vector<std::vector<glm::vec3>> objectPositions;
@@ -27,11 +30,13 @@ void prepareShaders() {
 	shaders[0].setInt("texture2", 1);
 
 	// Set initial blend value
-	updateBlendValue(shaders[0], 0.5f);
+	Render::updateBlendValue(shaders[0], 0.5f);
 }
 
 void prepareObjects() {
-	cubes = { Cube("res/images/dummyImage1.jpg", "res/images/dummyImage2.png") };
+	cubes = {
+		Cube("res/images/dummyImage1.jpg", "res/images/dummyImage2.png"),
+	};
 
 	objectPositions = {
 		{ // [0] => Cube positions
@@ -50,34 +55,34 @@ void prepareObjects() {
 }
 
 //** Public **//
-void initializeResourceManager(GLFWwindow& window) {
+void ResourceManager::initialize(GLFWwindow& window) {
 	// Initialize key settings
-	initializeRender(window);
+	Render::initialize(window);
 	
 	// Create a camera
-	cam = Camera(
+	cam.reset(new Camera(
 		glm::vec3(0.0f, 0.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
-		2.5f, 150.0f);
+		2.5f, 150.0f));
 
 	// Prepare shaders and objects
 	prepareShaders();
 	prepareObjects();
 }
 
-void render() {
-	clearWindow();
+void ResourceManager::render() {
+	Render::clearWindow();
 	
 	// Process cubes
 	shaders[0].use(); // Use cube shader. If no other shader is ever used, this line can be moved out of the while loop
 	cubes[0].renderMultiple(shaders[0], objectPositions[0]);
-	updateMatrices(shaders[0], cam);
+	Render::updateMatrices(shaders[0]);
 }
 
-Camera& giveCamera() {
-	return cam;
+Camera& ResourceManager::giveCamera() {
+	return *cam;
 }
 
-std::vector<Shader>& giveShaders() {
+std::vector<Shader>& ResourceManager::giveShaders() {
 	return shaders;
 }

@@ -10,7 +10,7 @@ class Shader {
 public:
     unsigned int shaderProgramID;
 
-    Shader(const char* vertexPath, const char* fragmentPath);
+    Shader(const std::string& vertexPath, const std::string& fragmentPath);
 
     void use();
     void setBool(const std::string& name, bool value) const;

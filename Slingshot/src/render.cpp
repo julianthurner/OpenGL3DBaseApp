@@ -13,13 +13,15 @@
 #include "render.hpp"
 #include "input.hpp"
 #include "window.hpp"
+#include "resourceManager.hpp"
 
 //** Private **//
 float blendValue;
 
 void loadTexture(std::string& texturePath, unsigned int& textureID) {
 	// Load the image from file
-	int width, height, numberOfColorChannels, rgbType;
+	int width, height, numberOfColorChannels;
+	int rgbType = 0;
 	// 1st argument takes a const char* to the filepath
 	// 2nd, 3rd and 4th argument take pointers to store width, height and number of color channels in
 	// 5th argument can be used to force number of 8-bit components per pixel. We don't need that, so we leave it at 0
@@ -381,28 +383,28 @@ void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions)
 	}
 }
 
-void initializeRender(GLFWwindow& window) {
+void Render::initialize(GLFWwindow& window) {
 	//* Setup OpenGL
 	// Enable depth testing (otherwise vertices may override each other); only needed for 3D applications
 	glEnable(GL_DEPTH_TEST);
 	// Tell OpenGL to capture the mouse
 	glfwSetInputMode(&window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	// Register mouse callback and zoomwheel callback
-	glfwSetCursorPosCallback(&window, processMouse);
-	glfwSetScrollCallback(&window, processScrollwheel);
+	glfwSetCursorPosCallback(&window, Input::processMouse);
+	glfwSetScrollCallback(&window, Input::processScrollwheel);
 	
 	//* Setup STBI
 	// This is important so that images aren't flipped when they are loaded
 	stbi_set_flip_vertically_on_load(true);
 }
 
-void clearWindow() {
+void Render::clearWindow() {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	// Clears both the color buffer and the depth buffer so that the values of the previous frame get discarded
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void updateBlendValue(Shader& shader, float delta) {
+void Render::updateBlendValue(Shader& shader, float delta) {
 	blendValue += delta;
 	if (blendValue > 1.0f) {
 		blendValue = 1.0f;
@@ -414,7 +416,8 @@ void updateBlendValue(Shader& shader, float delta) {
 	shader.setFloat("blendValue", blendValue);
 }
 
-void updateMatrices(Shader& shader, Camera& cam) {
+void Render::updateMatrices(Shader& shader) {
+	Camera cam = ResourceManager::giveCamera();
 	// For the model matrix, rotate the object around the x-Axis so that it looks like it's lying on the floor
 	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -424,7 +427,7 @@ void updateMatrices(Shader& shader, Camera& cam) {
 
 	// For the projection matrix, retrieve the FOV from the camera
 	// Third and fourth parameter determine the near plane and far plane distance relative to the camera
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam.fov), aspectRatio, 0.1f, 100.0f);
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam.fov), Window::getAspectRatio(), 0.1f, 100.0f);
 	
 	shader.setMat4("modelMatrix", modelMatrix);
 	shader.setMat4("viewMatrix", viewMatrix);

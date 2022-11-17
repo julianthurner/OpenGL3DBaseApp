@@ -11,58 +11,54 @@
 #include "shaders.hpp"
 
 //** Public **//
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
-	/* Read the shaders from file */
-	// Retrieve the vertex and fragment source code from filePath
-	const char* vertexCode;
-	const char* fragmentCode;
-
-	// Important note: Keep this outside of the try-block, otherwise the const char* pointer will point to something non-constant
-	// Which is fatal and will prevent any and all files from being read properly
-	std::string vertexCodeString;
-	std::string fragmentCodeString;
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
+	//* Read the shaders from file
+	std::string vertexCode, fragmentCode;
 
 	try {
-		// Try reading the file contents
-		std::ifstream vertexShaderFile;
-		std::ifstream fragmentShaderFile;
+		//* Try reading the file contents
+		std::ifstream vertexShaderFile, fragmentShaderFile;
 
 		// Ensure that ifstream objects can throw exceptions
 		vertexShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		fragmentShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
+		// Open the files
 		vertexShaderFile.open(vertexPath);
 		fragmentShaderFile.open(fragmentPath);
-
 		std::stringstream vertexShaderStream, fragmentShaderStream;
+
+		// Store the file contents
 		vertexShaderStream << vertexShaderFile.rdbuf();
 		fragmentShaderStream << fragmentShaderFile.rdbuf();
 
+		// Close the files
 		vertexShaderFile.close();
 		fragmentShaderFile.close();
 
 		// Convert filestreams into strings
-		// Note: std::string.c_str() returns a C-like const char* string
-		vertexCodeString = vertexShaderStream.str();
-		fragmentCodeString = fragmentShaderStream.str();
-		vertexCode = vertexCodeString.c_str();
-		fragmentCode = fragmentCodeString.c_str();
+		// Note: std::stringstream.str() returns std::string
+		vertexCode = vertexShaderStream.str();
+		fragmentCode = fragmentShaderStream.str();
 	}
 	catch (std::ifstream::failure e)
 	{
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n";
 	}
 
-	//* Compile the shaders and create a shader program from them */
+	//* Compile the shaders and create a shader program from them
 	// vertexID and fragmentID contain the IDs assigned to them by OpenGL
 	// int success simply stores a boolean-like int value for determining the success of the compilation
 	unsigned int vertexID, fragmentID;
 	int success;
 	char infoLog[512];
 
-	// Compile Vertex Shader
+	// Compile vertex shader
+	// Fetch the ID that OpenGL assigns our vertex shader
 	vertexID = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexID, 1, &vertexCode, NULL);
+	// As unfortunate as it is, there is no way to circumvent storing a const char* temporarily
+	const char* vertexCodeChar = vertexCode.c_str();
+	glShaderSource(vertexID, 1, &vertexCodeChar, NULL);
 	glCompileShader(vertexID);
 
 	glGetShaderiv(vertexID, GL_COMPILE_STATUS, &success);
@@ -71,9 +67,12 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
 	}
 
-	// Compile Fragment Shader
+	// Compile fragment shader
+	// Fetch the ID that OpenGL assigns our fragment shader
 	fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentID, 1, &fragmentCode, NULL);
+	// As unfortunate as it is, there is no way to circumvent storing a const char*
+	const char* fragmentCodeChar = fragmentCode.c_str();
+	glShaderSource(fragmentID, 1, &fragmentCodeChar, NULL);
 	glCompileShader(fragmentID);
 
 	glGetShaderiv(fragmentID, GL_COMPILE_STATUS, &success);

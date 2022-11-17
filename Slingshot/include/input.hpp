@@ -4,6 +4,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-extern void processKeyboardInput(GLFWwindow* window, float deltaTime);
-extern void processMouse(GLFWwindow* window, double x, double y);
-extern void processScrollwheel(GLFWwindow* window, double xoffset, double yoffset);
+class Input {
+public:
+	static void processKeyboardInput(GLFWwindow& window, float deltaTime);
+	
+	static void processMouse(GLFWwindow* window, double x, double y);
+	static void processScrollwheel(GLFWwindow* window, double xoffset, double yoffset);
+};

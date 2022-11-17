@@ -4,7 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-extern float aspectRatio;
-
-extern GLFWwindow& initializeWindow();
-extern void getScreenSize(int* width, int* height);
+class Window {
+public:
+	static GLFWwindow& initialize();
+	static void getScreenSize(int& width, int& height);
+	static float getAspectRatio();
+};

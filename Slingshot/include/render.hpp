@@ -52,7 +52,10 @@ public:
 	void renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions);
 };
 
-extern void initializeRender(GLFWwindow& window);
-extern void clearWindow();
-extern void updateBlendValue(Shader& shader, float delta);
-extern void updateMatrices(Shader& shader, Camera& cam);
+class Render {
+public:
+	static void initialize(GLFWwindow& window);
+	static void clearWindow();
+	static void updateBlendValue(Shader& shader, float delta);
+	static void updateMatrices(Shader& shader);
+};

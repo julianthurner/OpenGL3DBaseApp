@@ -9,7 +9,10 @@
 #include "camera.hpp"
 #include "shaders.hpp"
 
-extern void initializeResourceManager(GLFWwindow& window);
-extern void render();
-extern Camera& giveCamera();
-extern std::vector<Shader>& giveShaders();
+class ResourceManager {
+public:
+	static void initialize(GLFWwindow& window);
+	static void render();
+	static Camera& giveCamera();
+	static std::vector<Shader>& giveShaders();
+};

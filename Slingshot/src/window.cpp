@@ -5,6 +5,8 @@
 #include "window.hpp"
 
 //** Private **//
+float aspectRatio;
+
 // Resize viewport if user resizes the window
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -13,9 +15,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 //** Public **//
-float aspectRatio;
-
-GLFWwindow& initializeWindow() {
+GLFWwindow& Window::initialize() {
     // Set basic settings
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -42,9 +42,13 @@ GLFWwindow& initializeWindow() {
     return window;
 }
 
-void getScreenSize(int* width, int* height) {
+void Window::getScreenSize(int& width, int& height) {
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-    *width = vidmode->width;
-    *height = vidmode->height;
+    width = vidmode->width;
+    height = vidmode->height;
+}
+
+float Window::getAspectRatio() {
+    return aspectRatio;
 }
