@@ -44,11 +44,7 @@ int main(int argc, char** argv) {
 
 /*
 * To dos:
-* Find a solution for the camera rotation problem (but check if quaternions solve this first)
-* 
-* Implement quaternions everywhere there is glm::rotate
-* 
-* Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
+Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
 * -> Use uniform buffer objects so that matrices are shared between plane and cube shader (function updateMatrices)
 * 
 * Use vectors wherever possible

@@ -35,7 +35,7 @@ void Input::processKeyboardInput(GLFWwindow& window, float deltaTime) {
 
 	if (glfwGetKey(&window, GLFW_KEY_UP) == GLFW_PRESS) {
 		if (!upKeyPressed) {
-			Render::updateBlendValue(ResourceManager::giveShaders()[0], 0.1f);
+			Render::updateBlendValue(ResourceManager::giveShaders()[1], 0.1f);
 			upKeyPressed = true;
 		}
 	}
@@ -45,7 +45,7 @@ void Input::processKeyboardInput(GLFWwindow& window, float deltaTime) {
 
 	if (glfwGetKey(&window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		if (!downKeyPressed) {
-			Render::updateBlendValue(ResourceManager::giveShaders()[0], -0.1f);
+			Render::updateBlendValue(ResourceManager::giveShaders()[1], -0.1f);
 			downKeyPressed = true;
 		}
 	}

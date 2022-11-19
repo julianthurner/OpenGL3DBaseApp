@@ -34,46 +34,36 @@ Camera::Camera(glm::vec3 givenCameraPosition, glm::vec3 givenCameraTarget, float
 
 // Changes the camera's direction
 void Camera::updateYawAndPitch(float yawOffset, float pitchOffset) {
-	// Implement this
-	double starttime = glfwGetTime();
-	glm::quat yawRotationQuaternion2 =glm::angleAxis(glm::radians(yawOffset), cameraUpVector);
-	glm::mat4 yawRotationMatrix3 = glm::toMat4(yawRotationQuaternion2);
-	glm::vec3 cameraRightVector3 = glm::vec3(yawRotationMatrix3 * glm::vec4(cameraRightVector, 1.0f));
-	glm::quat pitchRotationQuaternion2 = glm::angleAxis(glm::radians(pitchOffset), cameraRightVector3);
-	glm::mat4 pitchRotationMatrix3 = glm::toMat4(pitchRotationQuaternion2);
-	glm::vec3 cameraUpVector3 = glm::vec3(yawRotationMatrix3 * glm::vec4(cameraUpVector, 1.0f));
-	glm::quat finalQuaternion = yawRotationQuaternion2 * pitchRotationQuaternion2;
-	glm::mat4 finalMatrix = glm::toMat4(finalQuaternion);
-	glm::vec3 cameraDirectionVector3 = glm::normalize(glm::vec3(finalMatrix * glm::vec4(cameraDirectionVector, 1.0f)));
-	
+	// We'll use quaternions as those save at least 50% computation time over Euler rotations
 	// For the yaw, we rotate the camera around the up vector and update the now changed right vector
-	glm::mat4 yawRotationMatrix = glm::mat4(1.0f); // Start off with an identity matrix
-	yawRotationMatrix = glm::rotate(yawRotationMatrix, glm::radians(yawOffset), cameraUpVector);
+	glm::quat yawRotationQuaternion = glm::angleAxis(glm::radians(yawOffset), cameraUpVector);
+	glm::mat4 yawRotationMatrix = glm::toMat4(yawRotationQuaternion);
 	cameraRightVector = glm::vec3(yawRotationMatrix * glm::vec4(cameraRightVector, 1.0f));
 
 	// For the pitch, we rotate the camera around the updated right vector and update the now changed up vector
-	glm::mat4 pitchRotationMatrix = glm::mat4(1.0f); // Reset the rotationMatrix to an identity matrix
-	pitchRotationMatrix = glm::rotate(pitchRotationMatrix, glm::radians(pitchOffset), cameraRightVector);
+	glm::quat pitchRotationQuaternion = glm::angleAxis(glm::radians(pitchOffset), cameraRightVector);
+	glm::mat4 pitchRotationMatrix = glm::toMat4(pitchRotationQuaternion);
 	cameraUpVector = glm::vec3(pitchRotationMatrix * glm::vec4(cameraUpVector, 1.0f));
 
 	// Lastly, we update the direction vector
+	glm::quat combinedQuaternion = yawRotationQuaternion * pitchRotationQuaternion;
+	glm::mat4 combinedRotationMatrix = glm::toMat4(combinedQuaternion);
 	// Normalization ensures that forward / backward movement always has the same speed
-	cameraDirectionVector = glm::normalize(glm::vec3(yawRotationMatrix * pitchRotationMatrix * glm::vec4(cameraDirectionVector, 1.0f)));
+	cameraDirectionVector = glm::normalize(glm::vec3(combinedRotationMatrix * glm::vec4(cameraDirectionVector, 1.0f)));
+
+	// Due to this kind of free flight camera implementation, the view will rotate if you look around in circles
+	// Looking 90° up, then 90° left and then 90° down again will roll the camera counter-clockwise by 90°
+	// This effect is normal for free flight cameras and if you want to discard it, you have to fix the camera in place
+	// E.g. have the up vector always point toward positive y and prevent the user from looking too far down / up (-> FPS cam)
 }
 
 // Rotates the camera by the amount given
 void Camera::updateRotation(float rollOffset) {
-	// Implement this
-	double starttime = glfwGetTime();
-	glm::quat rotationQuaternion = glm::angleAxis(glm::radians(rollOffset), cameraDirectionVector);
-	glm::mat4 rotationMatrix2 = glm::toMat4(rotationQuaternion);
-	glm::vec3 newUpVector2 = glm::vec3(rotationMatrix2 * glm::vec4(cameraUpVector, 1.0f));
-	glm::vec3 newRightVector2 = glm::vec3(rotationMatrix2 * glm::vec4(cameraRightVector, 1.0f));
-	
+	// We'll use quaternions as those save at least 50% computation time over Euler rotations
 	// First, we calculate a rotation matrix that rotates our camera around its direction vector
-	glm::mat4 rotationMatrix = glm::mat4(1.0f); // Start off with identity matrix
-	rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rollOffset), cameraDirectionVector);
-	// Then we update voth the up vector and the right vector
+	glm::quat rotationQuaternion = glm::angleAxis(glm::radians(rollOffset), cameraDirectionVector);
+	glm::mat4 rotationMatrix = glm::toMat4(rotationQuaternion);
+	// Then we update both the up vector and the right vector
 	cameraUpVector = glm::vec3(rotationMatrix * glm::vec4(cameraUpVector, 1.0f));
 	cameraRightVector = glm::vec3(rotationMatrix * glm::vec4(cameraRightVector, 1.0f));
 }

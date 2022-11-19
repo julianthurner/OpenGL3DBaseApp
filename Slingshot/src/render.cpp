@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 // Seems strange, but this is the correct way of including stb_image.h
 #define STB_IMAGE_IMPLEMENTATION
@@ -347,13 +349,17 @@ void Cube::initializeVAO() {
 	glEnableVertexAttribArray(1);
 }
 
-void Cube::rotate(Shader& shader, glm::vec3 cubePosition) {
-	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
-	modelMatrix = glm::translate(modelMatrix, cubePosition); // Translate by the given vector
+void Cube::calculateModelMatrix(Shader& shader, glm::vec3 cubePosition) {
+	glm::mat4 translationMatrix = glm::mat4(1.0f); // Start off with an identity matrix
+	translationMatrix = glm::translate(translationMatrix, cubePosition); // Translate by the given vector
 
 	// Rotate the cubes at different speeds
+	// We'll use quaternions as those save at least 50% computation time over Euler rotations
 	float angle = 20.0f * (cubePosition[0] + 1);
-	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+	// Note, and this is very important: Quaternions do, in any case, need a normalized vector! Or else they will behave very weirdly
+	glm::quat rotationQuaternion = glm::angleAxis((float)glfwGetTime() * glm::radians(angle), glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f)));
+	glm::mat4 rotationMatrix = glm::toMat4(rotationQuaternion);
+	glm::mat4 modelMatrix = translationMatrix * rotationMatrix;
 
 	// Update the model matrix
 	shader.setMat4("modelMatrix", modelMatrix);
@@ -374,7 +380,7 @@ void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions)
 	// The previous steps have to be done only once because the VAO and textures used don't change when we re-use the same object multiple times
 	for (unsigned int i = 0; i < cubePositions.size(); i++) {
 		// Update the model matrix to translate the cube to another position in the world
-		rotate(shader, cubePositions[i]);
+		calculateModelMatrix(shader, cubePositions[i]);
 		
 		// Draw the cube
 		// First argument is the type of object to draw, in this case triangles as our cube is still comprised of those
@@ -393,11 +399,11 @@ void Plane::initializeVAO() {
 		// positions; note that we have to use four coordinates x, y, z, w to simulate infinity
 		// w = 1.0f means we are calculating a "normal" space coordinate, in this case the middle of the world, 0-0-0
 		// w = 0.0f means we are going to infinity
-		0.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f, -1.0f, 0.0f,
-		-1.0f, 0.0f, -1.0f, 0.0f,
-		-1.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, -0.1f, 0.0f, 1.0f,
+		1.0f, -0.1f, 1.0f, 0.0f,
+		1.0f, -0.1f, -1.0f, 0.0f,
+		-1.0f, -0.1f, -1.0f, 0.0f,
+		-1.0f, -0.1f, 1.0f, 0.0f,
 	};
 
 	std::array<unsigned int, 12> indices = {

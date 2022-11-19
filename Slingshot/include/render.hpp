@@ -45,7 +45,7 @@ private:
 
 	void initializeTextures(const std::string& texture1Path, const std::string& texture2Path);
 	void initializeVAO();
-	void rotate(Shader& shader, glm::vec3 cubePosition);
+	void calculateModelMatrix(Shader& shader, glm::vec3 cubePosition);
 public:
 	Cube(const std::string& texture1Path, const std::string& texture2Path);
 
