@@ -27,13 +27,13 @@ int main(int argc, char** argv) {
 		
 		// Process the user's key presses
 		Input::processKeyboardInput(window, deltaTime);
-		// glfwPollEvents calls the callbacks set in Render::initialize() => processMouse() and processScrollwheel()
+		// glfwPollEvents calls the callbacks set in Render::initialize() => Input::processMouse() and Input::processScrollwheel()
 		glfwPollEvents();
 
 		// Render
 		ResourceManager::render();
 		
-		// Check and call events and swap buffers
+		// Swap buffers
 		glfwSwapBuffers(&window);
 	}
 
@@ -44,16 +44,12 @@ int main(int argc, char** argv) {
 
 /*
 * To dos:
-* Find out if how texture IDs behave when assigning different textures to different shaders
+* Find a solution for the camera rotation problem (but check if quaternions solve this first)
 * 
-* * Check if there's a limit to the world coordinates
-* 
-* Implement a floor plane
-* 
-* Implement quaternions
+* Implement quaternions everywhere there is glm::rotate
 * 
 * Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
-* -> Use uniform buffer objects
+* -> Use uniform buffer objects so that matrices are shared between plane and cube shader (function updateMatrices)
 * 
 * Use vectors wherever possible
 * Make sure there are as few raw pointers as possible

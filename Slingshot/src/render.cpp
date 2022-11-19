@@ -18,7 +18,7 @@
 //** Private **//
 float blendValue;
 
-void loadTexture(std::string& texturePath, unsigned int& textureID) {
+void loadTexture(const std::string& texturePath, unsigned int& textureID) {
 	// Load the image from file
 	int width, height, numberOfColorChannels;
 	int rgbType = 0;
@@ -37,7 +37,8 @@ void loadTexture(std::string& texturePath, unsigned int& textureID) {
 		rgbType = GL_RGBA;
 		break;
 	default:
-		std::cout << "Error: Image's color channels were not properly recognized." << std::endl;
+		std::cout << "Error: Image's color channels were not properly recognized." << "\n";
+		std::cout << "Image has " << numberOfColorChannels << " color channels." << std::endl;
 	}
 
 	// Generate a new texture. First argument is the number of textures to create
@@ -143,12 +144,12 @@ void Triangle::render() {
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-Rectangle::Rectangle(std::string texture1Path, std::string texture2Path) {
+Rectangle::Rectangle(const std::string& texture1Path, const std::string& texture2Path) {
 	initializeTextures(texture1Path, texture2Path);
 	initializeVAO();
 }
 
-void Rectangle::initializeTextures(std::string& texture1Path, std::string& texture2Path) {
+void Rectangle::initializeTextures(const std::string& texture1Path, const std::string& texture2Path) {
 	loadTexture(texture1Path, texture1ID);
 	loadTexture(texture2Path, texture2ID);
 }
@@ -250,12 +251,12 @@ void Rectangle::render() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-Cube::Cube(std::string texture1Path, std::string texture2Path) {
+Cube::Cube(const std::string& texture1Path, const std::string& texture2Path) {
 	initializeTextures(texture1Path, texture2Path);
 	initializeVAO();
 }
 
-void Cube::initializeTextures(std::string& texture1Path, std::string& texture2Path) {
+void Cube::initializeTextures(const std::string& texture1Path, const std::string& texture2Path) {
 	loadTexture(texture1Path, texture1ID);
 	loadTexture(texture2Path, texture2ID);
 }
@@ -346,7 +347,7 @@ void Cube::initializeVAO() {
 	glEnableVertexAttribArray(1);
 }
 
-void Cube::updateModelMatrix(Shader& shader, glm::vec3 cubePosition) {
+void Cube::rotate(Shader& shader, glm::vec3 cubePosition) {
 	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
 	modelMatrix = glm::translate(modelMatrix, cubePosition); // Translate by the given vector
 
@@ -371,9 +372,9 @@ void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions)
 	glBindVertexArray(VAO);
 
 	// The previous steps have to be done only once because the VAO and textures used don't change when we re-use the same object multiple times
-	for (unsigned int i = 0; i < 10; i++) {
+	for (unsigned int i = 0; i < cubePositions.size(); i++) {
 		// Update the model matrix to translate the cube to another position in the world
-		updateModelMatrix(shader, cubePositions[i]);
+		rotate(shader, cubePositions[i]);
 		
 		// Draw the cube
 		// First argument is the type of object to draw, in this case triangles as our cube is still comprised of those
@@ -381,6 +382,90 @@ void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions)
 		// The third one is the amount of vertices of the object (a cube has two triangles with 3 vertices each per side, so 2 * 3 * 6 = 36)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
+}
+
+Plane::Plane() {
+	initializeVAO();
+}
+
+void Plane::initializeVAO() {
+	std::array<float, 20> vertices = {
+		// positions; note that we have to use four coordinates x, y, z, w to simulate infinity
+		// w = 1.0f means we are calculating a "normal" space coordinate, in this case the middle of the world, 0-0-0
+		// w = 0.0f means we are going to infinity
+		0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, -1.0f, 0.0f,
+		-1.0f, 0.0f, -1.0f, 0.0f,
+		-1.0f, 0.0f, 1.0f, 0.0f,
+	};
+
+	std::array<unsigned int, 12> indices = {
+		0, 1, 2,
+		0, 2, 3,
+		0, 3, 4,
+		0, 4, 1,
+	};
+
+	// Create an element buffer object -> manages objects comprised of overlapping vertices
+	// Since we won't change the index data, there is no need for us to store the EBO ID permanently
+	unsigned int EBO;
+	// First parameter defines number of EBOs created, seconds takes a pointer to the EBO ID address
+	glGenBuffers(1, &EBO);
+
+	//* Create a vertex array object that tells OpenGL how to interpret VBO data (see down below)
+	// First parameter defines number of VAOs created, seconds takes a pointer to the VAO ID address
+	glGenVertexArrays(1, &VAO);
+
+	//* Create a vertex buffer object that stores our data
+	// Since we won't change the vertex data, there is no need for us to store the VBO ID permanently
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+
+	//* Copy our vertices into a vertex buffer for OpenGL to use
+	// This function tells OpenGL which VAO we are currently working with
+	glBindVertexArray(VAO);
+	// Same for the VBO
+	// First parameter tells OpenGL which type of buffer it has to deal with, second parameter is the VBO ID
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// Here the actual data copying happens
+	// Static draw specifies that the data is set only once and used many times
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+
+	//* Copy our index array in an element buffer for OpenGL to use
+	// Same as for the VAO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+
+	//* Tell OpenGL how our vertex data is organised
+	// First argument is the location where the set of data is stored in the vertex shaders
+	// Second argument is the size of the specified vertex attribute
+	// Third argument specifies the data type of the specified vertex attribute
+	// 4th argument specifies if we want the data to be normalized to [-1;1] / [0;1], which we don't need, so we use GL_FALSE
+	// 5th argument defines the stride, which means the space between consecutive vertex attributes
+	// 6th argument defines the offset, which means after which space the specified attribute data is stored
+	// Vertex positions are designated with location = 0 in the vertex shader
+	// The total length of one block is 4 (4 vertex positions)
+	// The vertex positions occupy the first 4 positions (-> offset 0)
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	// After each specification with glVertexAttribPointer, we need to call glEnableVertexAttribArray
+	// This is because vertex attributes are disabled by default
+	// The functions takes the location we previously used as its argument
+	glEnableVertexAttribArray(0);
+}
+
+void Plane::render() {
+	//* Do the rendering
+	// Tells OpenGL that it is working with this rectangle's VAO
+	// Remember that all that OpenGL needs is an VAO; it contains the necessary pointers to both VBOs and EBOs
+	glBindVertexArray(VAO);
+	// Draw the rectangle; glDrawElements is used here because it uses EBOs stored in the VAO
+	// -> used for objects comprised of overlapping vertices designated with an index buffer
+	// First argument is the type of object to draw (in thise case still GL_TRIANGLES as our plane is comprised of four triangles)
+	// Second argument is the number of indices we want to draw, so in this case 12
+	// Third argument is the data type of the indices
+	// 4th argument can be used to specify an offset for the EBO, since our data starts at 0 in the EBO, we can leave it at that
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 }
 
 void Render::initialize(GLFWwindow& window) {
@@ -417,10 +502,13 @@ void Render::updateBlendValue(Shader& shader, float delta) {
 }
 
 void Render::updateMatrices(Shader& shader) {
+	// To do changes:
+	// update projection matrix only when camera is moved
+	// update model matrix only when object is moving
+	// update projection matrix only when fov or aspect ratio has changed
+	
 	Camera cam = ResourceManager::giveCamera();
-	// For the model matrix, rotate the object around the x-Axis so that it looks like it's lying on the floor
-	glm::mat4 modelMatrix = glm::mat4(1.0f); // Start off with an identity matrix
-	modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+	// We don't have to change the model matrix as each object handles it on its own
 
 	// For the view matrix, retrieve it from the camera
 	glm::mat4 viewMatrix = cam.calculateViewMatrix();
@@ -429,7 +517,6 @@ void Render::updateMatrices(Shader& shader) {
 	// Third and fourth parameter determine the near plane and far plane distance relative to the camera
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam.fov), Window::getAspectRatio(), 0.1f, 100.0f);
 	
-	shader.setMat4("modelMatrix", modelMatrix);
 	shader.setMat4("viewMatrix", viewMatrix);
 	shader.setMat4("projectionMatrix", projectionMatrix);
 }
