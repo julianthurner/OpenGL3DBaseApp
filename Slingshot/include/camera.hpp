@@ -18,5 +18,6 @@ public:
 
 	void updateYawAndPitch(float yawOffset, float pitchOffset);
 	void updateRotation(float rollOffset);
-	glm::mat4 calculateViewMatrix();
+	void updateViewMatrix();
+	void updateProjectionMatrix();
 };

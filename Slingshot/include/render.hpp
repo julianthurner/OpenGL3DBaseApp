@@ -68,5 +68,4 @@ public:
 	static void initialize(GLFWwindow& window);
 	static void clearWindow();
 	static void updateBlendValue(Shader& shader, float delta);
-	static void updateMatrices(Shader& shader);
 };

@@ -44,9 +44,6 @@ int main(int argc, char** argv) {
 
 /*
 * To dos:
-Optimize the code (-> object only re-calculated when moved or altered in some way; camera only recalculated when moved)
-* -> Use uniform buffer objects so that matrices are shared between plane and cube shader (function updateMatrices)
-* 
 * Use vectors wherever possible
 * Make sure there are as few raw pointers as possible
 * Use more unsigned ints and more consts
@@ -59,4 +56,6 @@ Optimize the code (-> object only re-calculated when moved or altered in some wa
 * Change the disclaimer to better reflect which code is my own
 * 
 * Replace dummy pictures
+* 
+* Is there any way to publich the includes?
 */

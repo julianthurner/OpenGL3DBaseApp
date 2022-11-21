@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "window.hpp"
+#include "resourceManager.hpp"
 
 //** Private **//
 float aspectRatio;
@@ -11,7 +12,9 @@ float aspectRatio;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
     aspectRatio = (float)width / height;
+    ResourceManager::giveCamera().updateProjectionMatrix();
 }
 
 //** Public **//

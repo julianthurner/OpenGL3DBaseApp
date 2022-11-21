@@ -355,14 +355,21 @@ void Cube::calculateModelMatrix(Shader& shader, glm::vec3 cubePosition) {
 
 	// Rotate the cubes at different speeds
 	// We'll use quaternions as those save at least 50% computation time over Euler rotations
-	float angle = 20.0f * (cubePosition[0] + 1);
 	// Note, and this is very important: Quaternions do, in any case, need a normalized vector! Or else they will behave very weirdly
+	float angle = 20.0f * (cubePosition[0] + 1);
+	// glm::angleAxis creates a quaternion that stores a rotation
+	// First argument is the angle by which to rotate and second argument is the (normalized!) vector to be rotated around
+	// Since the given vector is no unit vector, it has to be normalized
 	glm::quat rotationQuaternion = glm::angleAxis((float)glfwGetTime() * glm::radians(angle), glm::normalize(glm::vec3(1.0f, 0.3f, 0.5f)));
 	glm::mat4 rotationMatrix = glm::toMat4(rotationQuaternion);
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix;
 
 	// Update the model matrix
 	shader.setMat4("modelMatrix", modelMatrix);
+
+	// Theoretically, it would be possible to store the model matrices for each object locally and only recalculate it if the object is altered in any way
+	// However, in a typical video game scene (which has millions of vertices), this would consume tremendous amounts of RAM
+	// compared to storing only the object's coordinates
 }
 
 void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions) {
@@ -379,7 +386,7 @@ void Cube::renderMultiple(Shader& shader, std::vector<glm::vec3>& cubePositions)
 
 	// The previous steps have to be done only once because the VAO and textures used don't change when we re-use the same object multiple times
 	for (unsigned int i = 0; i < cubePositions.size(); i++) {
-		// Update the model matrix to translate the cube to another position in the world
+		// Update the model matrix to translate the cube to another position in the world and rotate it
 		calculateModelMatrix(shader, cubePositions[i]);
 		
 		// Draw the cube
@@ -505,24 +512,4 @@ void Render::updateBlendValue(Shader& shader, float delta) {
 	}
 
 	shader.setFloat("blendValue", blendValue);
-}
-
-void Render::updateMatrices(Shader& shader) {
-	// To do changes:
-	// update projection matrix only when camera is moved
-	// update model matrix only when object is moving
-	// update projection matrix only when fov or aspect ratio has changed
-	
-	Camera cam = ResourceManager::giveCamera();
-	// We don't have to change the model matrix as each object handles it on its own
-
-	// For the view matrix, retrieve it from the camera
-	glm::mat4 viewMatrix = cam.calculateViewMatrix();
-
-	// For the projection matrix, retrieve the FOV from the camera
-	// Third and fourth parameter determine the near plane and far plane distance relative to the camera
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(cam.fov), Window::getAspectRatio(), 0.1f, 100.0f);
-	
-	shader.setMat4("viewMatrix", viewMatrix);
-	shader.setMat4("projectionMatrix", projectionMatrix);
 }

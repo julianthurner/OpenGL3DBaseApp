@@ -55,27 +55,35 @@ void Input::processKeyboardInput(GLFWwindow& window, float deltaTime) {
 
 	if (glfwGetKey(&window, GLFW_KEY_W) == GLFW_PRESS) {
 		cam.cameraPosition += cam.cameraDirectionVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_S) == GLFW_PRESS) {
 		cam.cameraPosition -= cam.cameraDirectionVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_A) == GLFW_PRESS) {
 		cam.cameraPosition -= cam.cameraRightVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_D) == GLFW_PRESS) {
 		cam.cameraPosition += cam.cameraRightVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_Q) == GLFW_PRESS) {
 		cam.updateRotation(-cam.rollSpeed * deltaTime); // Positive angles rotate clockwise
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_E) == GLFW_PRESS) {
 		cam.updateRotation(cam.rollSpeed * deltaTime); // Negative angles rotate counter-clockwise
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		cam.cameraPosition += cam.cameraUpVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 	if (glfwGetKey(&window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 		cam.cameraPosition -= cam.cameraUpVector * cam.cameraSpeed * deltaTime;
+		cam.updateViewMatrix();
 	}
 }
 
@@ -118,4 +126,7 @@ void Input::processScrollwheel(GLFWwindow* window, double xOffset, double yOffse
 		fov = 89.0f;
 	}
 	cam.fov = fov;
+
+	// Since the projection matrix has changed, update it
+	cam.updateProjectionMatrix();
 }
