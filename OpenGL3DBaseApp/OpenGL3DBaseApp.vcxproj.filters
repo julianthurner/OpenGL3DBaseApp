@@ -19,6 +19,9 @@
     <Filter Include="Resource Files\Images">
       <UniqueIdentifier>{21ed0e46-0944-49f0-8ad6-3c712ae32824}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Github">
+      <UniqueIdentifier>{66a8ad00-9d43-4e24-82cc-c4e75a584de6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -87,6 +90,9 @@
     </None>
     <None Include="res\shaders\planeShader.frag">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\README.md">
+      <Filter>Github</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -36,7 +36,7 @@ GLFWwindow& Window::initialize() {
     // First two arguments are width and height, third argument is the window's desired "title" (= the name displayed at the top)
     // 4th argument can be used to assign a monitor which will then run the window in fullscreen mode. We don't want that for now, so we pass nullptr.
     // 5th argumemt can be used to share resources with another window. We don't need that for now, so we pass nullptr.
-    GLFWwindow& window = *glfwCreateWindow(initialWidth, initialHeight, "Slingshot", nullptr, nullptr);
+    GLFWwindow& window = *glfwCreateWindow(initialWidth, initialHeight, "OpenGL3DBaseApp", nullptr, nullptr);
     // Sets the current context to the window we created. Important as all drawing happens on the current context only
     glfwMakeContextCurrent(&window);
     aspectRatio = (float)initialWidth / initialHeight;

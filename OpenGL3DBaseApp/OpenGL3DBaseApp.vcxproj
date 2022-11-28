@@ -36,6 +36,7 @@
     <ClInclude Include="include\window.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="res\shaders\cubeShader.frag" />
     <None Include="res\shaders\cubeShader.vert" />
     <None Include="res\shaders\planeShader.frag" />

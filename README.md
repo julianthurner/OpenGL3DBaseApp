@@ -1,3 +1,11 @@
+This is a basic OpenGL 3D application base template that one can use to build larger projects upon.<br>
+Parts of this repo's code have been created by following the tutorial at https://learnopengl.com.<br>
+It's a fantastic tutorial for starting out with OpenGL and I truly recommend checking it out.<br>
+
+The template includes a camera implementation that allows for a free-flight camera, so pitch/yaw/rotation are all able to be modified.<br>
+Also, I used quaternions for all rotations and implemented a uniform buffer object.<br>
+And I wrote lots of documentation so that everyone who is just starting out with OpenGL can understand what's going on.<br>
+
 Setup for building yourself:<br>
 Look into this guide https://learnopengl.com/Getting-started/Creating-a-window for help with the setup<br>
 (1) Setup GLFW and link its includes and its lib file<br>
@@ -15,3 +23,5 @@ In the end, you should have an include structure like this:<br>
 -lib (note that the glad.lib file below is optional, you'll need it only if you choose to compile GLAD into a static library yourself)<br>
 ---glad.lib<br>
 ---glfw3.lib<br>
+
+Note: All dummy images were taken from Wikimedia to avoid copyright problems.<br>
